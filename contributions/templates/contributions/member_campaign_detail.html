@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container-fluid py-4">
+    <div class="mb-3">
+        
+<a href="{% url 'accounts:dashboard' %}"
+   class="btn btn-success">
+    Back to Dashboard
+</a>
+</div>
+
+<div class="container py-4" style="max-width: 850px;">
+    <a href="{% url 'contributions:member_portal' %}"
+       class="text-decoration-none">← My Contributions</a>
+
+    <div class="card border-0 shadow-sm mt-3">
+        <div class="card-body p-4">
+            <span class="badge bg-success">Active Campaign</span>
+            <h2 class="fw-bold mt-3">{{ campaign.title }}</h2>
+            <p class="text-muted">{{ campaign.description }}</p>
+
+            <hr>
+
+            <div class="row g-3">
+                <div class="col-sm-4">
+                    <p class="text-muted mb-1">Amount Due</p>
+                    <h5>KSh {{ obligation.amount_due|floatformat:2 }}</h5>
+                </div>
+                <div class="col-sm-4">
+                    <p class="text-muted mb-1">Amount Paid</p>
+                    <h5 class="text-success">KSh {{ paid|floatformat:2 }}</h5>
+                </div>
+                <div class="col-sm-4">
+                    <p class="text-muted mb-1">Outstanding</p>
+                    <h5>KSh {{ outstanding|floatformat:2 }}</h5>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                {% if payment_status == "Paid" %}
+                    <div class="alert alert-success">
+                        Your contribution has been paid in full.
+                    </div>
+                {% elif payment_status == "Partially Paid" %}
+                    <div class="alert alert-warning">
+                        You have partially paid this contribution.
+                        Your remaining balance is KSh {{ outstanding|floatformat:2 }}.
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Your contribution payment is outstanding.
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if outstanding > 0 %}
+                <form method="post"
+                      action="{% url 'contributions:mpesa_pay' campaign.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        Pay with M-Pesa
+                    </button>
+                </form>
+                <p class="text-muted small mt-2 text-center">
+                    M-Pesa integration is coming soon. No money will be charged yet.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

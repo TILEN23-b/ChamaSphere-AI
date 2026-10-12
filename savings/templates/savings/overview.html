@@ -1,0 +1,439 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>My Savings | GreenSACCO</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            background: #f4f7f5;
+            font-family: Arial, sans-serif;
+            color: #26332c;
+        }
+
+        .navbar {
+            background: #146c43;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .navbar-brand:hover {
+            color: #e4f5e9;
+        }
+
+        .page-header {
+            margin-top: 30px;
+            margin-bottom: 24px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #146c43, #198754);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(20, 108, 67, 0.15);
+        }
+
+        .balance-amount {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .account-number {
+            opacity: 0.9;
+        }
+
+        .summary-card,
+        .content-card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .summary-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .table th {
+            white-space: nowrap;
+            background: #f0f5f2;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .reference {
+            font-size: 0.82rem;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-success {
+            background-color: #146c43;
+            border-color: #146c43;
+        }
+
+        .btn-success:hover {
+            background-color: #105735;
+            border-color: #105735;
+        }
+
+        footer {
+            color: #6c757d;
+            font-size: 0.85rem;
+            padding: 28px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'savings:overview' %}">
+            <i class="bi bi-piggy-bank me-2"></i>GreenSACCO
+        </a>
+
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="text-white d-none d-sm-inline">
+                {{ request.user.get_full_name|default:request.user.username }}
+            </span>
+
+            <a href="{% url 'accounts:dashboard' %}"
+               class="btn btn-outline-light btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+
+    <!-- Page heading -->
+    <div class="page-header">
+        <h1 class="h3 fw-bold mb-1">My Savings Statement</h1>
+        <p class="text-muted mb-0">
+            Review your savings activity and download your statement.
+        </p>
+    </div>
+
+    <!-- Django messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                 role="alert">
+                {{ message }}
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Date validation error -->
+    {% if date_error %}
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ date_error }}
+        </div>
+    {% endif %}
+
+    <!-- Current balance -->
+    <div class="card balance-card mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-2">
+                        <i class="bi bi-wallet2 me-2"></i>
+                        Current Savings Balance
+                    </p>
+
+                    <div class="balance-amount">
+                        KES {{ balance|floatformat:2|intcomma }}
+                    </div>
+
+                    <p class="account-number mt-3 mb-0">
+                        Account number:
+                        <strong>{{ account.account_number }}</strong>
+                    </p>
+                </div>
+
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <i class="bi bi-piggy-bank"
+                       style="font-size: 5rem; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statement date filters -->
+    <div class="card content-card mb-4">
+        <div class="card-body p-4">
+            <h2 class="h5 fw-bold mb-3">
+                <i class="bi bi-calendar-range me-2"></i>
+                Filter Statement Period
+            </h2>
+
+            <form method="get"
+                  action="{% url 'savings:overview' %}"
+                  class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label for="start_date" class="form-label">
+                        Start date
+                    </label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="start_date"
+                        name="start_date"
+                        value="{{ request.GET.start_date|default:'' }}"
+                    >
+                </div>
+
+                <div class="col-md-4">
+                    <label for="end_date" class="form-label">
+                        End date
+                    </label>
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="end_date"
+                        name="end_date"
+                        value="{{ request.GET.end_date|default:'' }}"
+                    >
+                </div>
+
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-funnel me-1"></i> Apply Filter
+                    </button>
+
+                    <a href="{% url 'savings:overview' %}"
+                       class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+                </div>
+            </form>
+
+            <p class="text-muted small mt-3 mb-0">
+                Leave both dates blank to view your complete transaction
+                history. The current balance above is not restricted by
+                the selected dates.
+            </p>
+        </div>
+    </div>
+
+    <!-- Statement totals -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card summary-card h-100">
+                <div class="card-body p-4">
+                    <div class="summary-label mb-2">
+                        Opening Balance
+                    </div>
+                    <div class="summary-value">
+                        KES {{ opening_balance|floatformat:2|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card summary-card h-100">
+                <div class="card-body p-4">
+                    <div class="summary-label mb-2">
+                        Total Deposits
+                    </div>
+                    <div class="summary-value text-success">
+                        + KES {{ deposits_total|floatformat:2|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card summary-card h-100">
+                <div class="card-body p-4">
+                    <div class="summary-label mb-2">
+                        Total Withdrawals
+                    </div>
+                    <div class="summary-value text-danger">
+                        - KES {{ withdrawals_total|floatformat:2|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Transaction history -->
+    <div class="card content-card mb-4">
+        <div class="card-body p-0">
+
+            <div class="d-flex flex-column flex-md-row
+                        justify-content-between align-items-md-center
+                        gap-3 p-4 border-bottom">
+
+                <div>
+                    <h2 class="h5 fw-bold mb-1">
+                        Transaction History
+                    </h2>
+                    <p class="text-muted small mb-0">
+                        Deposits and withdrawals in the selected period.
+                    </p>
+                </div>
+
+                <a
+                    href="{% url 'savings:statement-export' %}?start_date={{ request.GET.start_date|default:''|urlencode }}&amp;end_date={{ request.GET.end_date|default:''|urlencode }}"
+                    class="btn btn-success"
+                >
+                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                    Export CSV
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Transaction</th>
+                            <th>Reference</th>
+                            <th class="text-end">Deposit (KES)</th>
+                            <th class="text-end">Withdrawal (KES)</th>
+                            <th class="text-end pe-4">
+                                Running Balance (KES)
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td class="ps-4 text-nowrap">
+                                    {{ transaction.created_at|date:"d M Y, H:i" }}
+                                </td>
+
+                                <td>
+                                    {% if transaction.transaction_type == "deposit" %}
+                                        <span class="badge text-bg-success">
+                                            Deposit
+                                        </span>
+                                    {% else %}
+                                        <span class="badge text-bg-danger">
+                                            Withdrawal
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="reference">
+                                    <a
+                                        href="{% url 'savings:transaction-detail' transaction.reference %}"
+                                        class="text-decoration-none"
+                                    >
+                                        {{ transaction.reference }}
+                                    </a>
+                                </td>
+
+                                <td class="text-end text-success">
+                                    {% if transaction.transaction_type == "deposit" %}
+                                        {{ transaction.amount|floatformat:2|intcomma }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end text-danger">
+                                    {% if transaction.transaction_type == "withdrawal" %}
+                                        {{ transaction.amount|floatformat:2|intcomma }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td class="text-end pe-4 fw-semibold">
+                                    {{ transaction.running_balance|floatformat:2|intcomma }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6"
+                                    class="text-center py-5 text-muted">
+                                    <i class="bi bi-receipt fs-2 d-block mb-2"></i>
+                                    No posted transactions were found for
+                                    the selected period.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Closing balance -->
+            <div class="p-4 border-top bg-light">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <span class="text-muted">Statement Closing Balance</span>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <span class="fs-4 fw-bold">
+                            KES {{ closing_balance|floatformat:2|intcomma }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="alert alert-info small" role="note">
+        <i class="bi bi-info-circle me-2"></i>
+        This statement displays posted transactions only. If you believe
+        a transaction is missing or incorrect, contact an authorised
+        GreenSACCO staff member.
+    </div>
+
+</main>
+
+<footer>
+    <div class="container text-center">
+        &copy; {% now "Y" %} GreenSACCO. All rights reserved.
+    </div>
+</footer>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>

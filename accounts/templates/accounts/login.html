@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Login | GreenSACCO{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <header class="topbar">
+        <a class="brand" href="{% url 'accounts:login' %}">
+            <span class="brand-mark"><i class="bi bi-leaf-fill"></i></span>
+            <span>
+                <strong>GreenSACCO</strong>
+                <small>Together We Grow</small>
+            </span>
+        </a>
+        <div class="topbar-action">
+            <span>Don't have an account?</span>
+            <a href="{% url 'accounts:register' %}" class="outline-btn">Register</a>
+        </div>
+    </header>
+
+    <main class="auth-main login-main">
+        <section class="story-panel">
+            <span class="pill">Welcome Back</span>
+            <h1>Your Financial<br>Future, <span>Our Priority.</span></h1>
+            <p class="story-copy">
+                Access your SACCO account, manage your savings, contributions,
+                loans and more — all in one place.
+            </p>
+
+            <div class="benefits">
+                <div class="benefit">
+                    <span class="benefit-icon"><i class="bi bi-piggy-bank"></i></span>
+                    <div><strong>Save for a better tomorrow</strong></div>
+                </div>
+                <div class="benefit">
+                    <span class="benefit-icon"><i class="bi bi-hand-thumbs-up"></i></span>
+                    <div><strong>Access affordable loans</strong></div>
+                </div>
+                <div class="benefit">
+                    <span class="benefit-icon"><i class="bi bi-bar-chart-line"></i></span>
+                    <div><strong>Earn competitive dividends</strong></div>
+                </div>
+                <div class="benefit">
+                    <span class="benefit-icon"><i class="bi bi-people"></i></span>
+                    <div><strong>Grow together as a community</strong></div>
+                </div>
+            </div>
+
+            <div class="leaf-art" aria-hidden="true">
+                <span class="leaf leaf-a"></span>
+                <span class="leaf leaf-b"></span>
+                <span class="leaf leaf-c"></span>
+                <span class="stem"></span>
+            </div>
+        </section>
+
+        <section class="form-panel">
+            <div class="auth-card">
+                <div class="card-heading">
+                    <h2>Login to Your Account</h2>
+                    <p>Enter your credentials to continue</p>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="form-alert">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>{{ form.non_field_errors|striptags }}</span>
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-field">
+                        <label for="{{ form.username.id_for_label }}">Email Address / Member ID</label>
+                        <div class="input-wrap">
+                            <i class="bi bi-envelope"></i>
+                            {{ form.username }}
+                        </div>
+                        {% for error in form.username.errors %}
+                            <small class="field-error">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-field">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        <div class="input-wrap">
+                            <i class="bi bi-lock"></i>
+                            {{ form.password }}
+                            <button type="button" class="input-action" data-password-toggle aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        {% for error in form.password.errors %}
+                            <small class="field-error">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember">
+                            <input type="checkbox" name="remember_me">
+                            <span></span>
+                            Remember me
+                        </label>
+                        <a href="{% url 'accounts:password_reset' %}">Forgot password?</a>
+                    </div>
+
+                    <button class="primary-btn" type="submit">
+                        <span>Login</span><i class="bi bi-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="or-divider"><span>OR</span></div>
+
+                <button type="button" class="google-btn" disabled title="Google sign-in will be enabled later">
+                    <span class="google-g">G</span> Continue with Google
+                </button>
+
+                <p class="legal">
+                    By logging in, you agree to our
+                    <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="auth-footer">
+        <span>Smart Savings</span><b>•</b><span>Trusted Loans</span><b>•</b><span>Sustainable Growth</span>
+    </footer>
+</div>
+{% endblock %}

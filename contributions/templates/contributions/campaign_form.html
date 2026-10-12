@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="mb-3">
+        
+<a href="{% url 'accounts:dashboard' %}"
+   class="btn btn-success">
+    Back to Dashboard
+</a>
+</div>
+
+
+<div class="container py-4" style="max-width: 850px;">
+    <div class="mb-4">
+        <h2 class="fw-bold">Create Contribution Campaign</h2>
+        <p class="text-muted">
+            Set the purpose, contribution amount and deadline.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}"
+                               class="form-label fw-semibold">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="alert alert-info small">
+                    The campaign will be saved as a draft. No member will
+                    receive an amount due until an authorized user activates it.
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Save Draft
+                </button>
+                <a href="{% url 'contributions:campaign_list' %}"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
