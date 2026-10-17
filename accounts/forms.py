@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .models import User
+from django import forms
+from django.contrib.auth import get_user_model
 
 
 class LoginForm(AuthenticationForm):
@@ -132,3 +134,37 @@ class RegisterForm(UserCreationForm):
             user.save()
 
         return user
+
+
+
+User = get_user_model()
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "national_id",
+        ]
+
+        widgets = {
+            "first_name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "First name"}
+            ),
+            "last_name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Last name"}
+            ),
+            "email": forms.EmailInput(
+                attrs={"class": "form-control", "placeholder": "Email address"}
+            ),
+            "phone_number": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Phone number"}
+            ),
+            "national_id": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "National ID"}
+            ),
+        }

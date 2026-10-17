@@ -137,27 +137,26 @@
                 </a>
             {% endif %}
 
-            {% if can_manage_system_users %}
-                <div class="sidebar-label">SYSTEM MANAGEMENT</div>
-                <a class="nav-item disabled-link"
-                   href="#user-management"
-                   title="User management module coming soon">
-                    <i class="bi bi-people"></i>
-                    <span>User management</span>
-                </a>
-            {% endif %}
+           {% if can_manage_system_users %}
+  <div class="sidebar-label">SYSTEM MANAGEMENT</div>
+  <a class="nav-item" href="{% url 'system_management:dashboard' %}">
+    <i class="bi bi-shield-lock"></i>
+    <span>System Management</span>
+  </a>
+{% endif %}
 
         </nav>
 
         <div class="sidebar-label account-label">ACCOUNT</div>
 
         <nav class="sidebar-nav" aria-label="Account navigation">
-            <a class="nav-item disabled-link"
-               href="#profile"
-               title="Profile module coming soon">
-                <i class="bi bi-person-circle"></i>
-                <span>My profile</span>
-            </a>
+            
+<a class="nav-item"
+   href="{% url 'accounts:profile' %}">
+    <i class="bi bi-person-circle"></i>
+    <span>My profile</span>
+</a>
+
 
             <a class="nav-item disabled-link"
                href="#help"
@@ -223,6 +222,13 @@
                 <div class="topbar-divider"></div>
 
                 <div class="profile-chip">
+                    
+<a class="nav-item"
+   href="{% url 'accounts:profile' %}">
+    <i class="bi bi-person-circle"></i>
+    <span>My profile</span>
+</a>
+
                     <div class="avatar">
                         {{ member_name|first|upper }}
                     </div>
@@ -404,6 +410,7 @@
                                     <small>Check your balance and statement</small>
                                 </span>
                                 <i class="bi bi-chevron-right action-chevron"></i>
+                                
                             </a>
                         {% endif %}
 
@@ -464,7 +471,9 @@
                                 </span>
                                 <span>
                                     <strong>System user administration</strong>
-                                    <small>User management module coming soon</small>
+                                    <a href="{% url 'system_management:dashboard' %}">
+                                        <small>Manage Users</small>
+                                    </a>
                                 </span>
                             </div>
                         {% endif %}

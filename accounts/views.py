@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.contrib import messages
+from .forms import LoginForm, RegisterForm, ProfileForm
 
 from .forms import LoginForm, RegisterForm
 from .permissions import (
@@ -147,4 +149,29 @@ def dashboard(request):
         request,
         "accounts/dashboard.html",
         context,
+    )
+
+# ---------------------------------------------------------
+# 4. MEMBER PROFILE
+# ---------------------------------------------------------
+
+@login_required
+def profile(request):
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                "Your profile has been updated successfully."
+            )
+            return redirect("accounts:profile")
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(
+        request,
+        "accounts/profile.html",
+        {"form": form, "member": request.user},
     )

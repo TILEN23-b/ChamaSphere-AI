@@ -7,8 +7,7 @@ from django.contrib.auth.views import (
 )
 from django.urls import path
 
-from .views import AccountLoginView, dashboard, register
-
+from .views import AccountLoginView, dashboard, register, profile
 
 app_name = "accounts"
 
@@ -49,4 +48,5 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+    path("profile/", profile, name="profile"),
 ]

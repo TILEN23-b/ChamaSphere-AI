@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'meetings',
     'contributions',
+    'loans',
+    'system_management.apps.SystemManagementConfig',
 ]
 
 MIDDLEWARE = [

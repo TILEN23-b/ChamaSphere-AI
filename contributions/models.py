@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
+from django.db.models import F, Q
+from django.db.models.functions import Lower
 
 
 class ContributionCategory(models.Model):
@@ -181,6 +183,12 @@ class ContributionTransaction(models.Model):
                 name="cont_category_status_idx",
             ),
         ]
+        models.UniqueConstraint(
+    Lower("external_reference"),
+    F("payment_method"),
+    condition=~Q(external_reference=""),
+    name="uniq_contrib_external_ref_method_ci",
+),
 
     def __str__(self):
         return (

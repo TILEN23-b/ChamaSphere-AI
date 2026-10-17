@@ -1,12 +1,13 @@
+
 # Create your models here.
 
 import uuid
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
-from django.core.validators import MinValueValidator
 
 
 class SavingsAccount(models.Model):
@@ -35,10 +36,9 @@ class SavingsAccount(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.account_number:
-            # UUID-based account number; retry on the extremely
-            # unlikely chance of a collision.
             while True:
                 candidate = "GS-SAV-" + uuid.uuid4().hex[:12].upper()
+
                 if not SavingsAccount.objects.filter(
                     account_number=candidate
                 ).exists():
@@ -53,6 +53,7 @@ class SavingsAccount(models.Model):
         Calculate the posted balance from ledger entries.
 
         Deposits add to the balance; withdrawals subtract from it.
+        Reversed transactions are excluded.
         """
         totals = self.transactions.filter(
             status=SavingsTransaction.Status.POSTED

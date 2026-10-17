@@ -1,0 +1,133 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'accounts:dashboard' %}"
+           class="btn btn-success text-decoration-none">
+            <i class="bi bi-arrow-left-circle me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <h2 class="fw-bold text-success">My Profile</h2>
+        <p class="text-muted">
+            View and update your GreenSACCO account details.
+        </p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show"
+                 role="alert">
+                {{ message }}
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-success text-white py-3">
+            <h5 class="mb-0">Personal Information</h5>
+        </div>
+
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    {% for field in form %}
+                        <div class="col-md-6">
+                            <label for="{{ field.id_for_label }}"
+                                   class="form-label fw-semibold">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Save Changes
+                    </button>
+
+                    <a href="{% url 'accounts:dashboard' %}"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light py-3">
+            <h5 class="mb-0">Membership Information</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small">Member Number</div>
+                    <div class="fw-semibold">
+                        {{ member.member_number|default:"Not assigned" }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Membership Type</div>
+                    <div class="fw-semibold">
+                        {{ member.get_member_type_display }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">SACCO Role</div>
+                    <div class="fw-semibold">
+                        {{ member.get_sacco_role_display }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Member Since</div>
+                    <div class="fw-semibold">
+                        {{ member.created_at|date:"d M Y" }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Account Status</div>
+                    {% if member.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

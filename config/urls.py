@@ -25,4 +25,5 @@ urlpatterns = [
     path("savings/", include("savings.urls")),
     path("meetings/", include("meetings.urls")),
     path("contributions/", include("contributions.urls")),
+    path("system-management/",include("system_management.urls")),
 ]
